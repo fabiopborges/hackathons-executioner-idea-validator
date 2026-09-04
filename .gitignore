@@ -1,0 +1,14 @@
+# Banco de ideias gerado pela skill. Deliberadamente NÃO versionado: são
+# avaliações de ideias de negócio do autor — material estratégico, muitas vezes
+# com dado de cliente, parceiro ou LOI mencionado no corpo do arquivo. O que o
+# repositório publica é a FERRAMENTA, não as ideias avaliadas com ela.
+# Cada clone gera o seu próprio banco na primeira avaliação.
+output/
+
+# Settings locais do Claude Code (contêm caminhos e permissões da máquina).
+.claude/settings.local.json
+
+# Venv e cache Python locais, nunca versionar.
+.venv/
+__pycache__/
+*.pyc

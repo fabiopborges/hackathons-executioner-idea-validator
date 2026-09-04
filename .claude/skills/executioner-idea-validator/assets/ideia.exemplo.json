@@ -1,0 +1,37 @@
+{
+  "titulo": "Reentrega Zero",
+  "dominio_negocio": "Logistica e Transporte",
+  "funcao_negocio": [
+    "Cadeia de Suprimentos e Logistica",
+    "Atendimento e Suporte ao Cliente"
+  ],
+  "escopo_proposta": "Plataforma multiagente que antecipa recusa de entrega em transportadoras regionais e negocia o reagendamento com o destinatario por WhatsApp antes que o veiculo saia para a rota. Escopo do MVP: 2 transportadoras parceiras, integracao leitura-apenas com o WMS, canal WhatsApp Business API.",
+  "problema": "Transportadoras regionais perdem entre R$ 18k e R$ 40k por mes com reentregas causadas por ausencia do destinatario, sem nenhum sinal antecipado de risco.",
+  "quem_sofre": "Gestor de operacoes da transportadora (dono da meta de custo por entrega) e, em segundo grau, o embarcador que paga a reentrega.",
+  "arquitetura_agentes": "Tres agentes com papeis distintos e estado compartilhado: (1) Rastreador le o historico de tentativas no WMS; (2) Preditor classifica risco de recusa por rota/destinatario; (3) Negociador conduz a conversa no WhatsApp e decide autonomamente entre reagendar, redirecionar para ponto de retirada ou devolver, com loop de reflexao antes de confirmar a acao.",
+  "fontes_dados": "Historico de tentativas de entrega do WMS proprietario das transportadoras parceiras (dado privado, sob contrato). Malha viaria e faixas de CEP vem de base publica -- usadas apenas como enriquecimento, nao como diferencial.",
+  "notas": { "dor": 5, "agente": 5, "defesa": 4, "escala": 3 },
+  "justificativas": {
+    "dor": "4 entrevistas com donos de transportadora, perda mensal quantificada por cliente e uma LOI assinada para piloto.",
+    "agente": "Tres papeis distintos e decisao autonoma do Negociador entre tres desfechos -- nao e fluxo fixo.",
+    "defesa": "Historico do WMS das parceiras e dataset privado real; a regra de negocio sozinha ainda seria replicavel.",
+    "escala": "Ultima milha e dor nacional, mas nao ha plano de distribuicao alem das duas parceiras atuais."
+  },
+  "gargalo": "Pilar 4. Definir o canal de aquisicao antes da banca de SP: negociar presenca no marketplace de integracoes de um WMS lider (ex.: parceria de listagem) transforma cada cliente do WMS em lead sem CAC direto, levando Escala de 3 para 5.",
+  "horizonte": "HACKATHON_E_PRODUTO",
+  "potencial_produto_real": "ALTO",
+  "justificativa_horizonte": "Existe cliente pagante identificado e dor recorrente com perda mensurada em reais; o produto se sustenta como SaaS por entrega mesmo que o edital nao avance. A LOI ja da porta de entrada comercial.",
+  "riscos": [
+    "Dependencia de WhatsApp Business API: mudanca de politica de mensagens ativas pode inviabilizar o canal do agente Negociador.",
+    "Acesso ao WMS depende de contrato com as parceiras; sem ele o Pilar 3 desaba de 4 para 2.",
+    "Agente com autonomia para redirecionar entrega assume risco operacional -- exige trilha de auditoria e limite de alcada."
+  ],
+  "proximos_passos": [
+    "Fechar o contrato de acesso ao WMS da parceira com LOI ate o fim da semana.",
+    "Rotular 500 tentativas historicas de entrega para calibrar o agente Preditor.",
+    "Prototipar o loop de reflexao do Negociador com 20 conversas simuladas antes de tocar em cliente real.",
+    "Mapear o marketplace de integracoes do WMS lider e o processo de listagem."
+  ],
+  "tags": ["logistica", "ultima-milha", "whatsapp", "multiagente", "b2b"],
+  "observacao_revisao": "Registro inicial apos primeira avaliacao do Executioner."
+}
