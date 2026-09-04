@@ -10,7 +10,12 @@
   "quem_sofre": "Gestor de operacoes da transportadora (dono da meta de custo por entrega) e, em segundo grau, o embarcador que paga a reentrega.",
   "arquitetura_agentes": "Tres agentes com papeis distintos e estado compartilhado: (1) Rastreador le o historico de tentativas no WMS; (2) Preditor classifica risco de recusa por rota/destinatario; (3) Negociador conduz a conversa no WhatsApp e decide autonomamente entre reagendar, redirecionar para ponto de retirada ou devolver, com loop de reflexao antes de confirmar a acao.",
   "fontes_dados": "Historico de tentativas de entrega do WMS proprietario das transportadoras parceiras (dado privado, sob contrato). Malha viaria e faixas de CEP vem de base publica -- usadas apenas como enriquecimento, nao como diferencial.",
-  "notas": { "dor": 5, "agente": 5, "defesa": 4, "escala": 3 },
+  "notas": {
+    "dor": 5,
+    "agente": 5,
+    "defesa": 4,
+    "escala": 3
+  },
   "justificativas": {
     "dor": "4 entrevistas com donos de transportadora, perda mensal quantificada por cliente e uma LOI assinada para piloto.",
     "agente": "Tres papeis distintos e decisao autonoma do Negociador entre tres desfechos -- nao e fluxo fixo.",
@@ -32,6 +37,19 @@
     "Prototipar o loop de reflexao do Negociador com 20 conversas simuladas antes de tocar em cliente real.",
     "Mapear o marketplace de integracoes do WMS lider e o processo de listagem."
   ],
-  "tags": ["logistica", "ultima-milha", "whatsapp", "multiagente", "b2b"],
-  "observacao_revisao": "Registro inicial apos primeira avaliacao do Executioner."
+  "tags": [
+    "logistica",
+    "ultima-milha",
+    "whatsapp",
+    "multiagente",
+    "b2b"
+  ],
+  "observacao_revisao": "Registro inicial apos primeira avaliacao do Executioner.",
+  "risco_tecnico": "ALTO",
+  "justificativa_risco_tecnico": "Multiagente com integracao de escrita em canal externo (WhatsApp Business API) e dependencia de dado de terceiro (WMS) ainda sob contrato — dois marcadores de risco ALTO da rubrica.",
+  "pai": "Nas proximas 48h: agendar com a parceira da LOI a extracao de amostra do WMS (500 tentativas de entrega) e validar que os campos necessarios ao Preditor existem no dado real.",
+  "death_knell": {
+    "condicao": "Contrato de acesso ao WMS da parceira assinado e amostra de dados recebida",
+    "prazo": "2026-09-11"
+  }
 }

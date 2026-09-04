@@ -50,11 +50,16 @@ Não é preciso saber programar. Você conversa em português; a skill faz o res
    sempre.
 4. **Dá um veredicto sem rodeios**: APROVADA, EM OBSERVAÇÃO ou REPROVADA.
 5. **Aponta uma cirurgia**: o gargalo único que, resolvido, mais sobe a nota.
-6. **Classifica o negócio**: domínio (setor) e função de negócio segundo a Business
+6. **Cruza risco e recompensa**: recompensa derivada das notas (Dor + Escala), risco
+   técnico julgado sobre a arquitetura, e um veredito direto da matriz — de
+   "Barbada — execute já" a "Furada".
+7. **Exige compromissos**: um **PAI** (a única ação das próximas 48h) e um
+   **death knell** — a condição objetiva que, não cumprida em até 7 dias, enterra a ideia.
+8. **Classifica o negócio**: domínio (setor) e função de negócio segundo a Business
    Architecture do **TOGAF**.
-7. **Registra a ideia em `output/`**, na pasta correspondente ao veredicto, com histórico
+9. **Registra a ideia em `output/`**, na pasta correspondente ao veredicto, com histórico
    de reavaliações e um índice regenerado automaticamente.
-8. **Marca o horizonte**: se a ideia serve para o hackathon, para produto real, para os
+10. **Marca o horizonte**: se a ideia serve para o hackathon, para produto real, para os
    dois ou para nenhum.
 
 ### A persona
@@ -176,6 +181,15 @@ elementos não há o que avaliar.
 🔪 CIRURGIA: o teto está no Pilar 4. Negocie listagem no marketplace de integrações de
 um WMS líder — cada cliente do WMS vira lead sem CAC direto. Escala vai de 3 para 5.
 
+📊 MATRIZ: Recompensa MEDIA (Dor 5, Escala 3) x Risco ALTO → Arriscada — só avance
+com mitigação explícita.
+
+⚡ PAI (48h): formalizar com a parceira a extração de amostra do WMS e validar os
+campos que o Preditor precisa.
+
+☠️ DEATH KNELL: contrato de acesso ao WMS assinado e amostra recebida até 2026-09-11,
+ou a ideia é enterrada.
+
 🎯 HORIZONTE: HACKATHON_E_PRODUTO · Potencial de produto real: ALTO.
 📁 REGISTRADO EM: output/ideias-aprovadas/reentrega-zero.md
 ```
@@ -231,8 +245,10 @@ Nada é avaliado e nada é registrado.
 > Tenho 3 ideias para o hackathon, avalie todas e me diga qual seguir: [descrição 1...]
 > [descrição 2...] [descrição 3...]
 
-Cada ideia recebe a análise completa e vai para o banco. No fim, um ranking por média e
-uma recomendação: qual seguir e quais matar hoje. As notas **não são distribuídas na
+Cada ideia recebe a análise completa e vai para o banco. No fim, um **quadro
+comparativo** (Média · Categoria · Risco vs Recompensa · Death Knell · Decisão) e a
+**recomendação estratégica final**: qual é a prioridade #1 entre as aprovadas,
+justificada pelos pesos do edital. As notas **não são distribuídas na
 curva** — se as três forem ruins, as três são reprovadas.
 
 ### Exemplo 5 — Reavaliar depois que algo mudou
@@ -307,9 +323,12 @@ função de negócio (TOGAF) · status com a média · horizonte · potencial de
 tags.
 
 **Seções:** Escopo da proposta · Problema e quem sofre · Arquitetura de agentes ·
-Fontes de dados e defensibilidade · Scorecard · Veredicto · Cirurgia (gargalo único) ·
-Potencial fora do hackathon · Riscos e premissas · Próximos passos · Histórico de
-avaliações.
+Fontes de dados e defensibilidade · Scorecard · Veredicto · Matriz risco vs recompensa ·
+Cirurgia (gargalo único) · Plano de ação imediato (48h) · Death knell · Potencial fora
+do hackathon · Riscos e premissas · Próximos passos · Histórico de avaliações.
+
+O `INDEX.md` traz ainda um **quadro comparativo** de todas as ideias
+(Média · Categoria 🟢/🟡/🔴 · Risco vs Recompensa · Death Knell · Decisão Final).
 
 ### Horizonte: o campo que separa hackathon de negócio
 

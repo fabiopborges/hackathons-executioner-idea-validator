@@ -8,7 +8,7 @@ para que essa distinção fique registrada em vez de morrer na conversa.
 
 ```
 output/
-├── INDEX.md                    # gerado: índice por status + radar de produto real
+├── INDEX.md                    # gerado: índice por status + quadro comparativo + radar
 ├── banco.json                  # gerado: mesmo conteúdo, legível por máquina
 ├── ideias-aprovadas/           # média ponderada ≥ 4.00
 ├── ideias-em-observacao/       # 3.50 – 3.99 (a um gargalo da aprovação)
@@ -26,6 +26,8 @@ mão — isso quebra o índice e o histórico.
 
 | Elemento | Regra determinística |
 |---|---|
+| Recompensa e veredito da matriz | derivados por `scorecard.py` das notas e do risco — nunca julgados duas vezes |
+| Categoria/Decisão do quadro | derivadas do status (🟢 Avançar / 🟡 Observar / 🔴 Arquivar) |
 | Nome do arquivo | slug do título: NFKD → ASCII → minúsculas → `[^a-z0-9]+` vira `-` → 60 chars |
 | Pasta | faixa da média **já arredondada**, conforme `framework-pilares.md` |
 | Média | `Decimal`, HALF_UP, 2 casas — sem float, sem aritmética do modelo |
@@ -41,7 +43,8 @@ Mesmo JSON + mesmo `--datahora` ⇒ arquivo byte a byte idêntico.
 
 Título · Data/hora do registro · Última avaliação · Domínio de negócio ·
 Função de negócio (TOGAF) · Status (com a média) · Horizonte ·
-Potencial de produto real · Tags.
+Potencial de produto real · Risco vs recompensa (com o veredito da matriz) ·
+Decisão (🟢 Avançar / 🟡 Observar / 🔴 Arquivar) · Death knell (condição + prazo) · Tags.
 
 ## Seções do corpo
 
@@ -51,13 +54,17 @@ Potencial de produto real · Tags.
 4. **Fontes de dados e defensibilidade** — o que é proprietário e o que é público; Pilar 3.
 5. **Scorecard** — nota, peso e justificativa por pilar, com a média.
 6. **Veredicto** — status e a conta explícita.
-7. **Cirurgia — gargalo único** — a alavanca que mais move a nota. Obrigatória sempre,
+7. **Matriz risco vs recompensa** — recompensa derivada das notas, risco técnico
+   julgado pela rubrica, veredito determinístico da matriz.
+8. **Cirurgia — gargalo único** — a alavanca que mais move a nota. Obrigatória sempre,
    inclusive em ideia aprovada (aí é o teto a atacar).
-8. **Potencial fora do hackathon** — horizonte e potencial de produto real. É a seção que
+9. **Plano de ação imediato (48h)** — a única tarefa das próximas 48 horas.
+10. **Death knell** — condição objetiva + prazo (máx. 7 dias) que enterra a ideia.
+11. **Potencial fora do hackathon** — horizonte e potencial de produto real. É a seção que
    justifica manter reprovadas no banco.
-9. **Riscos e premissas** — o que derruba a ideia se der errado.
-10. **Próximos passos** — ações concretas, ordenadas.
-11. **Histórico de avaliações** — data, média, status e observação de cada rodada.
+12. **Riscos e premissas** — o que derruba a ideia se der errado.
+13. **Próximos passos** — ações concretas, ordenadas.
+14. **Histórico de avaliações** — data, média, status e observação de cada rodada.
 
 ## Uso
 
@@ -90,7 +97,11 @@ todos os campos preenchidos.
 | `notas` | `{dor, agente, defesa, escala}`, inteiros 1–5 | sim |
 | `justificativas` | uma frase por pilar | sim |
 | `horizonte`, `potencial_produto_real` | enum (taxonomia) | sim |
+| `risco_tecnico` | enum `ALTO`/`MEDIO`/`BAIXO` (taxonomia) | sim |
+| `pai` | string — a única ação das próximas 48h | sim |
+| `death_knell` | `{condicao, prazo}` com prazo `YYYY-MM-DD` (máx. 7 dias) | sim |
 | `justificativa_horizonte` | string | recomendado |
+| `justificativa_risco_tecnico` | string | recomendado |
 | `riscos`, `proximos_passos` | listas não vazias | sim |
 | `tags` | lista de strings | não |
 | `observacao_revisao` | string, entra no histórico | não |

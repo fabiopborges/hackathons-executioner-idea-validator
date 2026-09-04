@@ -36,6 +36,43 @@ STATUS_PASTA = {
     "REPROVADA": "ideias-reprovadas",
 }
 
+# status -> emoji de categoria e decisao final do quadro comparativo
+CATEGORIA_EMOJI = {"APROVADA": "🟢", "EM_OBSERVACAO": "🟡", "REPROVADA": "🔴"}
+DECISAO_FINAL = {"APROVADA": "Avancar", "EM_OBSERVACAO": "Observar", "REPROVADA": "Arquivar"}
+
+# Matriz risco vs recompensa (qualitativa, deterministica).
+# Recompensa e DERIVADA das notas (Pilares 1 e 4); risco tecnico e insumo
+# julgado pela rubrica de references/framework-pilares.md.
+MATRIZ_RISCO = {
+    ("BAIXO", "ALTA"): "Barbada - execute ja.",
+    ("BAIXO", "MEDIA"): "Vale o custo.",
+    ("BAIXO", "BAIXA"): "Esforco pequeno, retorno pequeno.",
+    ("MEDIO", "ALTA"): "Vale a pena.",
+    ("MEDIO", "MEDIA"): "Aposta calculada.",
+    ("MEDIO", "BAIXA"): "Provavelmente furada.",
+    ("ALTO", "ALTA"): "Vale a pena.",
+    ("ALTO", "MEDIA"): "Arriscada - so avance com mitigacao explicita.",
+    ("ALTO", "BAIXA"): "Furada.",
+}
+
+
+def recompensa_potencial(notas: dict) -> str:
+    """Derivada dos Pilares 1 (Dor) e 4 (Escala) - deterministica.
+
+    ALTA: dor validada E problema com escala (ambas >= 4, ex.: LOI + nacional).
+    BAIXA: dor no nivel do achismo (dor <= 2), qualquer que seja a escala.
+    MEDIA: o resto.
+    """
+    if notas["dor"] >= 4 and notas["escala"] >= 4:
+        return "ALTA"
+    if notas["dor"] <= 2:
+        return "BAIXA"
+    return "MEDIA"
+
+
+def veredito_risco(risco_tecnico: str, recompensa: str) -> str:
+    return MATRIZ_RISCO[(risco_tecnico, recompensa)]
+
 
 def media_ponderada(notas: dict) -> Decimal:
     """Media ponderada com arredondamento HALF_UP em 2 casas -- deterministico."""
@@ -65,6 +102,12 @@ def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
     for pilar in PILARES:
         p.add_argument(f"--{pilar}", type=int, choices=range(1, 6), metavar="1-5")
+    p.add_argument(
+        "--risco-tecnico",
+        choices=["ALTO", "MEDIO", "BAIXO"],
+        help="risco tecnico da arquitetura (rubrica em framework-pilares.md); "
+             "imprime a matriz risco vs recompensa",
+    )
     p.add_argument(
         "--pilar-insuficiente",
         action="append",
@@ -104,6 +147,11 @@ def main() -> int:
     print(f"MEDIA PONDERADA: {media} / 5.00")
     print(f"VEREDICTO: {veredicto(media)}")
     print(f"DESTINO NO BANCO: output/{STATUS_PASTA[classificar(media)]}/")
+    recompensa = recompensa_potencial(notas)
+    print(f"RECOMPENSA POTENCIAL: {recompensa} (derivada de Dor={notas['dor']} e Escala={notas['escala']})")
+    if a.risco_tecnico:
+        print(f"RISCO TECNICO: {a.risco_tecnico}")
+        print(f"VEREDITO DO RISCO: {veredito_risco(a.risco_tecnico, recompensa)}")
     return 0
 
 

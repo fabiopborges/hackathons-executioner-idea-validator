@@ -1,6 +1,6 @@
 ---
 name: executioner-idea-validator
-description: Avalia ideias de hackathon/edital de agentes de IA com rigor, aplicando o Framework Executioner de 4 Pilares (Dor Real, Centralidade do Agente, Defensibilidade, Escala Nacional), emite veredicto APROVADA/REPROVADA com scorecard ponderado e registra cada ideia num banco versionado em output/ (aprovadas, em observacao, reprovadas) com classificacao de dominio e funcao de negocio TOGAF. Use quando o usuario apresentar uma ideia, pitch, projeto ou lista de ideias para validar, criticar, priorizar, dar nota, comparar, decidir o que levar para um hackathon ou edital, ou quando pedir para consultar, reavaliar ou listar o banco de ideias.
+description: Avalia ideias de hackathon/edital de agentes de IA com rigor, aplicando o Framework Executioner de 4 Pilares (Dor Real, Centralidade do Agente, Defensibilidade, Escala Nacional), emite veredicto APROVADA/REPROVADA com scorecard ponderado e registra cada ideia num banco versionado em output/ (aprovadas, em observacao, reprovadas) com classificacao de dominio e funcao de negocio TOGAF, matriz risco vs recompensa, plano de acao de 48h e death knell com prazo. Use quando o usuario apresentar uma ideia, pitch, projeto ou lista de ideias para validar, criticar, priorizar, dar nota, comparar, decidir o que levar para um hackathon ou edital, ou quando pedir para consultar, reavaliar ou listar o banco de ideias.
 ---
 
 # Executioner — Validador e Banco de Ideias
@@ -42,10 +42,13 @@ porque uma ideia fraca para o edital pode ser um produto real forte.
 
    ```bash
    python3 .claude/skills/executioner-idea-validator/scripts/scorecard.py \
-     --dor 4 --agente 5 --defesa 3 --escala 4
+     --dor 4 --agente 5 --defesa 3 --escala 4 --risco-tecnico ALTO
    ```
 
-   Use `--pilar-insuficiente dor` (repetível) para pilares sem dados.
+   Use `--pilar-insuficiente dor` (repetível) para pilares sem dados. O `--risco-tecnico`
+   (rubrica em `references/framework-pilares.md`; na dúvida, o **maior**) faz o script
+   imprimir a recompensa derivada e o veredito da matriz risco vs recompensa — copie as
+   frases dele, não as recalcule.
 
 4. **Saída na conversa.** Preencha `assets/template-analise.md` na íntegra. O formato é
    obrigatório e não pode ser abreviado, reordenado nem enfeitado.
@@ -53,7 +56,12 @@ porque uma ideia fraca para o edital pode ser um produto real forte.
 5. **Cirurgia.** Aponte **um único** gargalo — o que, resolvido, mais move a nota. Ação
    concreta, não conselho genérico. Obrigatória inclusive em ideia aprovada.
 
-6. **Registro no banco.** Se as 4 notas existem, monte o JSON da ideia (modelo em
+6. **PAI e death knell.** Defina a ÚNICA ação das próximas 48h (tarefa verificável, não
+   direção) e a condição objetiva que, não cumprida em até **7 dias** (data ISO), enterra
+   a ideia. Regras em `references/framework-pilares.md`. Sem os dois, a análise está
+   incompleta.
+
+7. **Registro no banco.** Se as 4 notas existem, monte o JSON da ideia (modelo em
    `assets/ideia.exemplo.json`, campos e enums em `references/banco-de-ideias.md` e
    `references/taxonomia-negocio.md`) e registre:
 
@@ -69,15 +77,19 @@ porque uma ideia fraca para o edital pode ser um produto real forte.
    **Não registre** se qualquer pilar for `INSUFICIENTE` ou se a ideia foi barrada no
    gate — cobre o dado que falta e pare.
 
-7. **Horizonte.** Ao classificar `horizonte` e `potencial_produto_real`, avalie a ideia
+8. **Horizonte.** Ao classificar `horizonte` e `potencial_produto_real`, avalie a ideia
    como negócio real, **separado** do veredicto do edital. Uma REPROVADA com horizonte
    `PRODUTO` é um achado, não uma contradição — diga isso explicitamente ao usuário.
 
 ## Múltiplas ideias
 
-Avalie cada ideia isoladamente, na íntegra, registre cada uma, e feche com um ranking por
-média ponderada mais uma linha de recomendação: qual seguir e quais matar hoje. Não
-distribua notas na curva — se todas forem ruins, todas são reprovadas.
+Avalie cada ideia isoladamente, na íntegra, e registre cada uma. Depois feche com o
+**resumo executivo** do `assets/template-analise.md`: o quadro comparativo
+(Ideia · Média · Categoria 🟢/🟡/🔴 · Risco vs Recompensa · Death Knell · Decisão Final)
+seguido da **recomendação estratégica final** — dentre as aprovadas, a prioridade #1,
+justificada pelos pesos do edital (Dor e Agente 0.30 cada; desempate por Defesa 0.25,
+Escala 0.15, depois menor risco técnico). Não distribua notas na curva — se todas forem
+ruins, todas são reprovadas. O quadro com o banco inteiro vive em `output/INDEX.md`.
 
 ## Consultar ou reavaliar o banco
 
@@ -86,6 +98,10 @@ distribua notas na curva — se todas forem ruins, todas são reprovadas.
   registre de novo — o script move de pasta e registra a linha de histórico. Use
   `observacao_revisao` para dizer o que mudou.
 - `--reindex` reconstrói o índice se alguém mexeu nos arquivos.
+- **Death knell vencido:** se o usuário reportar (ou o quadro mostrar) prazo estourado
+  sem a condição cumprida, a ideia é reavaliada com esse fato como evidência negativa —
+  normalmente derruba o pilar que a condição sustentava — e um novo death knell é
+  definido ou a ideia é arquivada de vez.
 
 ## Referências
 

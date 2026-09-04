@@ -25,7 +25,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from scorecard import PILARES, ROTULOS, PESOS, STATUS_PASTA, classificar, media_ponderada
+from scorecard import (PILARES, ROTULOS, PESOS, STATUS_PASTA, CATEGORIA_EMOJI,
+                       DECISAO_FINAL, classificar, media_ponderada,
+                       recompensa_potencial, veredito_risco)
 from taxonomia import validar
 
 CAMPOS_TEXTO = (
@@ -36,7 +38,9 @@ CAMPOS_TEXTO = (
     "arquitetura_agentes",
     "fontes_dados",
     "gargalo",
+    "pai",
     "justificativa_horizonte",
+    "justificativa_risco_tecnico",
 )
 CAMPOS_LISTA = ("riscos", "proximos_passos")
 
@@ -115,7 +119,8 @@ def ler_historico(texto: str) -> list:
 # validacao
 # --------------------------------------------------------------------------- #
 def validar_payload(d: dict) -> dict:
-    faltando = [c for c in CAMPOS_TEXTO if c not in ("justificativa_horizonte",) and not str(d.get(c, "")).strip()]
+    opcionais = ("justificativa_horizonte", "justificativa_risco_tecnico")
+    faltando = [c for c in CAMPOS_TEXTO if c not in opcionais and not str(d.get(c, "")).strip()]
     if faltando:
         raise ValueError("campos de texto obrigatorios ausentes ou vazios: " + ", ".join(faltando))
 
@@ -140,6 +145,15 @@ def validar_payload(d: dict) -> dict:
     validar("dominio_negocio", str(d.get("dominio_negocio", "")))
     validar("potencial_produto_real", str(d.get("potencial_produto_real", "")))
     validar("horizonte", str(d.get("horizonte", "")))
+    validar("risco_tecnico", str(d.get("risco_tecnico", "")))
+
+    dk = d.get("death_knell")
+    if not isinstance(dk, dict) or not str(dk.get("condicao", "")).strip():
+        raise ValueError("death_knell: esperado objeto {condicao, prazo} com condicao "
+                         "objetiva e verificavel")
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(dk.get("prazo", ""))):
+        raise ValueError("death_knell.prazo: esperada data ISO (YYYY-MM-DD), no maximo "
+                         "7 dias apos a avaliacao")
 
     funcoes = d.get("funcao_negocio")
     if not isinstance(funcoes, list) or not 1 <= len(funcoes) <= 3:
@@ -163,6 +177,11 @@ def render(d: dict, media: Decimal, status: str, slug: str,
     notas, just = d["notas"], d["justificativas"]
     funcoes = [str(f) for f in d["funcao_negocio"]]
     tags = sorted({str(t).strip().lower() for t in d.get("tags", [])})
+    recompensa = recompensa_potencial(notas)
+    risco = str(d["risco_tecnico"])
+    verd_risco = veredito_risco(risco, recompensa)
+    decisao = DECISAO_FINAL[status]
+    dk = d["death_knell"]
 
     fm = [
         "---",
@@ -175,6 +194,11 @@ def render(d: dict, media: Decimal, status: str, slug: str,
         *[f"  - {aspas(f)}" for f in funcoes],
         f"horizonte: {aspas(d['horizonte'])}",
         f"potencial_produto_real: {aspas(d['potencial_produto_real'])}",
+        f"risco_tecnico: {aspas(risco)}",
+        f"recompensa_potencial: {aspas(recompensa)}",
+        f"decisao: {aspas(decisao)}",
+        f"death_knell_prazo: {aspas(dk['prazo'])}",
+        f"death_knell_condicao: {aspas(str(dk['condicao']).strip())}",
         *[f"nota_{p}: {notas[p]}" for p in PILARES],
         f"criado_em: {aspas(criado_em)}",
         f"atualizado_em: {aspas(agora)}",
@@ -197,6 +221,9 @@ def render(d: dict, media: Decimal, status: str, slug: str,
         f"| **Status** | **{STATUS_ROTULO[status]}** ({media}/5.00) |",
         f"| **Horizonte** | {d['horizonte']} |",
         f"| **Potencial de produto real** | {d['potencial_produto_real']} |",
+        f"| **Risco vs recompensa** | Risco {risco} x Recompensa {recompensa} — {verd_risco} |",
+        f"| **Decisão** | {CATEGORIA_EMOJI[status]} {decisao} |",
+        f"| **Death knell** | {str(dk['condicao']).strip()} (prazo: {dk['prazo']}) |",
         f"| **Tags** | {', '.join(tags) if tags else '—'} |",
         "",
     ]
@@ -233,9 +260,31 @@ def render(d: dict, media: Decimal, status: str, slug: str,
         f"**{STATUS_ROTULO[status]}** — media ponderada {media}/5.00 "
         f"({' + '.join(f'{PESOS[p]}x{notas[p]}' for p in PILARES)}).",
         "",
+        "## Matriz risco vs recompensa",
+        "",
+        f"**Recompensa potencial:** {recompensa} — derivada das notas de Dor "
+        f"({notas['dor']}/5) e Escala ({notas['escala']}/5).",
+        "",
+        f"**Risco técnico:** {risco}. "
+        + (str(d.get("justificativa_risco_tecnico", "")).strip()
+           or "_Sem justificativa registrada._"),
+        "",
+        f"**Veredito do risco:** {verd_risco}",
+        "",
         "## Cirurgia — gargalo unico",
         "",
         d["gargalo"].strip(),
+        "",
+        "## Plano de acao imediato (48h)",
+        "",
+        d["pai"].strip(),
+        "",
+        "## Death knell",
+        "",
+        f"**Condição:** {str(dk['condicao']).strip()}",
+        "",
+        f"**Prazo:** {dk['prazo']}. Não cumprida até esta data, a ideia é enterrada — "
+        "reavalie com a condição como evidência negativa ou arquive.",
         "",
         "## Potencial fora do hackathon",
         "",
@@ -312,6 +361,31 @@ def construir_indice(raiz: Path) -> tuple:
             )
         linhas.append("")
 
+    todos = sorted(
+        registros,
+        key=lambda r: (-float(r.get("media_ponderada", 0)), r["id"]),
+    )
+    linhas += [
+        "## Quadro comparativo",
+        "",
+        "| Ideia | Media | Categoria | Risco vs Recompensa | Death Knell (Prazo) | Decisao Final |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for r in todos:
+        risco_rr = (f"Risco {r['risco_tecnico']} x Recompensa {r['recompensa_potencial']}"
+                    if r.get("risco_tecnico") and r.get("recompensa_potencial") else "—")
+        dk_cel = (f"{r['death_knell_condicao']} ({r['death_knell_prazo']})"
+                  if r.get("death_knell_condicao") and r.get("death_knell_prazo") else "—")
+        linhas.append(
+            f"| [{r.get('titulo', r['id'])}]({r['_path']}) "
+            f"| {r.get('media_ponderada', '—')} "
+            f"| {CATEGORIA_EMOJI[r['_status']]} "
+            f"| {risco_rr} "
+            f"| {dk_cel} "
+            f"| {r.get('decisao') or DECISAO_FINAL[r['_status']]} |"
+        )
+    linhas.append("")
+
     joias = sorted(
         [r for r in registros if r.get("horizonte") in ("PRODUTO", "HACKATHON_E_PRODUTO")],
         key=lambda r: (-float(r.get("media_ponderada", 0)), r["id"]),
@@ -348,6 +422,14 @@ def construir_indice(raiz: Path) -> tuple:
                 "funcao_negocio": r.get("funcao_negocio", []),
                 "horizonte": r.get("horizonte"),
                 "potencial_produto_real": r.get("potencial_produto_real"),
+                "risco_tecnico": r.get("risco_tecnico"),
+                "recompensa_potencial": r.get("recompensa_potencial"),
+                "decisao": r.get("decisao"),
+                "death_knell": (
+                    {"condicao": r.get("death_knell_condicao"),
+                     "prazo": r.get("death_knell_prazo")}
+                    if r.get("death_knell_prazo") else None
+                ),
                 "notas": {p: int(r.get(f"nota_{p}", 0)) for p in PILARES},
                 "tags": r.get("tags", []),
                 "criado_em": r.get("criado_em"),
