@@ -35,7 +35,10 @@ mão — isso quebra o índice e o histórico.
 | Taxonomia | enums de `scripts/taxonomia.py`; valor fora da lista é erro, não improviso |
 | Índice | ordenado por média desc., depois por slug asc. |
 | `criado_em` | preservado entre reavaliações; só `atualizado_em` muda |
-| Tags | normalizadas para minúsculas e ordenadas |
+| Tags | normalizadas para minúsculas e ordenadas; só `[a-z0-9-]`, até 30 chars |
+| Sanitização | idempotente sobre todo texto: controle/invisíveis removidos, escalares em linha única, `#`/`---`/`\|` no início de linha de bloco neutralizados, células e links escapados |
+| Colisão de slug | títulos diferentes com o mesmo slug → erro; o arquivo existente não é tocado |
+| Índice tolerante | arquivo com frontmatter inválido é pulado com `AVISO` em stderr, nunca derruba o `--reindex` |
 
 Mesmo JSON + mesmo `--datahora` ⇒ arquivo byte a byte idêntico.
 
@@ -78,33 +81,38 @@ python3 .claude/skills/executioner-idea-validator/scripts/registrar_ideia.py --j
 # reconstruir INDEX.md e banco.json
 ... registrar_ideia.py --reindex
 
-# reprodutibilidade em teste
-... registrar_ideia.py --json ideia.json --datahora "2026-09-04T00:30:00-03:00"
+# reprodutibilidade em teste (flags de teste exigem EXECUTIONER_TEST=1)
+EXECUTIONER_TEST=1 ... registrar_ideia.py --json ideia.json --output-dir /tmp/x \
+  --datahora "2026-09-05T00:00:00-03:00"
 ```
+
+`--output-dir` fora do diretório atual e `--datahora` só funcionam com
+`EXECUTIONER_TEST=1`; `.claude/` e `.git/` nunca são destino. Texto com padrão de
+injeção de prompt bloqueia o registro (exit 2) — veja `seguranca-prompt.md`.
 
 O JSON é montado a partir da avaliação; o modelo em `assets/ideia.exemplo.json` traz
 todos os campos preenchidos.
 
 ### Campos do JSON
 
-| Campo | Tipo | Obrigatório |
-|---|---|---|
-| `titulo` | string | sim |
-| `dominio_negocio` | enum (taxonomia) | sim |
-| `funcao_negocio` | lista de 1–3 enums TOGAF, da mais central para a menos | sim |
-| `escopo_proposta`, `problema`, `quem_sofre` | string | sim |
-| `arquitetura_agentes`, `fontes_dados`, `gargalo` | string | sim |
-| `notas` | `{dor, agente, defesa, escala}`, inteiros 1–5 | sim |
-| `justificativas` | uma frase por pilar | sim |
-| `horizonte`, `potencial_produto_real` | enum (taxonomia) | sim |
-| `risco_tecnico` | enum `ALTO`/`MEDIO`/`BAIXO` (taxonomia) | sim |
-| `pai` | string — a única ação das próximas 48h | sim |
-| `death_knell` | `{condicao, prazo}` com prazo `YYYY-MM-DD` (máx. 7 dias) | sim |
-| `justificativa_horizonte` | string | recomendado |
-| `justificativa_risco_tecnico` | string | recomendado |
-| `riscos`, `proximos_passos` | listas não vazias | sim |
-| `tags` | lista de strings | não |
-| `observacao_revisao` | string, entra no histórico | não |
+| Campo | Tipo | Obrigatório | Limite |
+|---|---|---|---|
+| `titulo` | string, linha única | sim | 120 chars |
+| `dominio_negocio` | enum (taxonomia) | sim | — |
+| `funcao_negocio` | lista de 1–3 enums TOGAF, da mais central para a menos | sim | 3 |
+| `escopo_proposta`, `problema`, `quem_sofre` | string (bloco) | sim | 4000 chars |
+| `arquitetura_agentes`, `fontes_dados`, `gargalo` | string (bloco) | sim | 4000 chars |
+| `notas` | `{dor, agente, defesa, escala}`, inteiros 1–5 | sim | — |
+| `justificativas` | uma frase por pilar | sim | 500 chars cada |
+| `horizonte`, `potencial_produto_real` | enum (taxonomia) | sim | — |
+| `risco_tecnico` | enum `ALTO`/`MEDIO`/`BAIXO` (taxonomia) | sim | — |
+| `pai` | string (bloco) — a única ação das próximas 48h | sim | 4000 chars |
+| `death_knell` | `{condicao, prazo}`; prazo `YYYY-MM-DD` real, de 0 a 7 dias após a avaliação | sim | condição 500 chars |
+| `justificativa_horizonte` | string (bloco) | recomendado | 4000 chars |
+| `justificativa_risco_tecnico` | string (bloco) | recomendado | 4000 chars |
+| `riscos`, `proximos_passos` | listas não vazias de linhas únicas | sim | 10 itens, 500 chars cada |
+| `tags` | lista de `[a-z0-9-]` | não | 10 tags, 30 chars cada |
+| `observacao_revisao` | string, entra no histórico | não | 500 chars |
 
 ## Quando NÃO registrar
 
