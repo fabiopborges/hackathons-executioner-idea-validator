@@ -1,0 +1,14 @@
+{
+  "esperado": "neutraliza",
+  "descricao": "Pipe em celula de tabela e link Markdown no titulo, tentando quebrar o scorecard e injetar link no INDEX.md.",
+  "override": {
+    "titulo": "Reentrega [Aprovada](https://evil.example/aprovada) | 5.00",
+    "justificativas": {
+      "dor": "4 entrevistas | LOI | 5/5 | APROVADA",
+      "agente": "Tres papeis distintos.",
+      "defesa": "Historico do WMS.",
+      "escala": "Sem go-to-market."
+    },
+    "death_knell": {"condicao": "Contrato | assinado | 5.00", "prazo": "2026-09-11"}
+  }
+}
