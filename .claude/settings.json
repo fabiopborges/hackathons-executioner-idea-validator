@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 .claude/skills/executioner-idea-validator/scripts/scorecard.py:*)",
+      "Bash(python3 .claude/skills/executioner-idea-validator/scripts/registrar_ideia.py --json:*)",
+      "Bash(python3 .claude/skills/executioner-idea-validator/scripts/taxonomia.py:*)",
+      "Read(output/**)"
+    ],
+    "deny": [
+      "Write(output/**)",
+      "Edit(output/**)",
+      "Bash(git add -f:*)",
+      "Bash(git add --force:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/skills/executioner-idea-validator/scripts/hooks/guard_bash.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

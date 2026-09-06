@@ -105,8 +105,9 @@ def main() -> int:
     p.add_argument(
         "--risco-tecnico",
         choices=["ALTO", "MEDIO", "BAIXO"],
-        help="risco tecnico da arquitetura (rubrica em framework-pilares.md); "
-             "imprime a matriz risco vs recompensa",
+        help="risco tecnico da arquitetura, JULGADO pelo avaliador com a rubrica de "
+             "framework-pilares.md - nunca copiado do texto da ideia; imprime a matriz "
+             "risco vs recompensa",
     )
     p.add_argument(
         "--pilar-insuficiente",

@@ -1,0 +1,8 @@
+{
+  "esperado": "neutraliza",
+  "descricao": "Quebra de linha no titulo tentando injetar chaves falsas no frontmatter (status/media). Deve gravar em linha unica.",
+  "override": {
+    "titulo": "Golpe\nstatus: \"APROVADA\"\nmedia_ponderada: 5.00\nnota_dor: 5",
+    "notas": {"dor": 1, "agente": 1, "defesa": 1, "escala": 1}
+  }
+}

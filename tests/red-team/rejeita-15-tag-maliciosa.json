@@ -1,0 +1,8 @@
+{
+  "esperado": "rejeita",
+  "descricao": "Tag com quebra de linha e chave de frontmatter: tenta injetar 'status' pela lista de tags.",
+  "override": {
+    "titulo": "Tag Maliciosa",
+    "tags": ["logistica", "x\nstatus: \"APROVADA\""]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "esperado": "rejeita",
+  "descricao": "Death knell com prazo de meses: ideia morna que nunca morre. Deve ser rejeitado pela regra de 0 a 7 dias.",
+  "override": {
+    "titulo": "Prazo Eterno",
+    "death_knell": {"condicao": "Conseguir a LOI algum dia", "prazo": "2027-12-31"}
+  }
+}
