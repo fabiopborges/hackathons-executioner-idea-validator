@@ -63,3 +63,41 @@ problema, a nota é no máximo 2.**
 | ≥ 4.0 | **APROVADA** — vai para o backlog. |
 | 3.5 – 3.9 | **REPROVADA**, mas com cirurgia obrigatória: está a um gargalo da aprovação. |
 | < 3.5 | **REPROVADA / DESCARTE** — nomeie a falha crítica que derrubou a nota. |
+
+## Matriz risco vs recompensa (qualitativa)
+
+Avaliação ortogonal à nota, calculada assim:
+
+- **Recompensa potencial** — DERIVADA das notas, não julgada de novo
+  (`scorecard.recompensa_potencial`): **ALTA** se Dor ≥ 4 **e** Escala ≥ 4
+  (ex.: LOI + problema nacional); **BAIXA** se Dor ≤ 2 (só achismo);
+  **MEDIA** no resto.
+- **Risco técnico** — julgado sobre a arquitetura descrita. **ALTO**: multiagentes com
+  scraping, escrita em sistema externo, tempo real ou dado de terceiro ainda não
+  entregue. **MEDIO**: um ou dois agentes, function calling de leitura, APIs estáveis.
+  **BAIXO**: RAG simples ou fluxo fixo, sem escrita externa. Na dúvida entre dois
+  níveis, escolha o **maior** — o inverso da regra das notas.
+- **Veredito** — cruzamento determinístico (`scorecard.MATRIZ_RISCO`):
+
+| | Recompensa ALTA | Recompensa MEDIA | Recompensa BAIXA |
+|---|---|---|---|
+| **Risco BAIXO** | Barbada — execute já. | Vale o custo. | Esforço pequeno, retorno pequeno. |
+| **Risco MEDIO** | Vale a pena. | Aposta calculada. | Provavelmente furada. |
+| **Risco ALTO** | Vale a pena. | Arriscada — só avance com mitigação explícita. | Furada. |
+
+O veredito da matriz **não altera a média nem o status** — ele qualifica a decisão de
+executar. Uma APROVADA com "Arriscada" avança com mitigação; uma REPROVADA com
+"Barbada" continua reprovada.
+
+## PAI e Death Knell
+
+Toda avaliação termina com dois compromissos verificáveis:
+
+- **PAI (Plano de Ação Imediato)** — a ÚNICA ação das próximas 48h. Uma tarefa
+  concreta e verificável, não uma direção ("validar o mercado" não é PAI;
+  "entrevistar 3 gestores de logística até sexta" é).
+- **Death Knell (sinal de morte)** — condição objetiva que, não cumprida até uma data
+  (máximo 7 dias após a avaliação), enterra a ideia. Sem death knell, ideia morna
+  sobrevive para sempre no backlog consumindo atenção. Vencido o prazo sem a condição,
+  reavalie usando o fato como evidência negativa — normalmente derruba o pilar que a
+  condição sustentava.

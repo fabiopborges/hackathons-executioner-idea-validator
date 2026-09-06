@@ -62,6 +62,21 @@ na empresa isso caia no time de vendas.
 - **MEDIO** — dor real, mas monetizacao ou canal ainda indefinidos.
 - **BAIXO** — so faz sentido como demo de competicao.
 
+## Risco tecnico
+
+Julgado sobre a arquitetura DESCRITA, pela rubrica de `framework-pilares.md`.
+Na duvida entre dois niveis, escolha o MAIOR (o inverso da regra das notas).
+
+- **ALTO** - multiagentes com scraping, escrita em sistema externo (ex.: orgao
+  publico), tempo real, ou ativo de dado ainda nao entregue.
+- **MEDIO** - um ou dois agentes, function calling de leitura, integracoes com
+  API estavel e documentada.
+- **BAIXO** - RAG simples ou fluxo fixo, sem integracao externa de escrita.
+
+A recompensa potencial NAO e insumo: e derivada das notas dos Pilares 1 e 4
+por `scorecard.recompensa_potencial()`. O cruzamento risco x recompensa sai da
+matriz `scorecard.MATRIZ_RISCO`.
+
 ## Horizonte
 
 - **HACKATHON** — serve para a banca, mas nao se sustenta como negocio.

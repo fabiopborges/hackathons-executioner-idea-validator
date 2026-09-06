@@ -58,6 +58,10 @@ FUNCOES_NEGOCIO = (
 # Potencial de virar produto real fora do hackathon.
 POTENCIAL_PRODUTO = ("ALTO", "MEDIO", "BAIXO")
 
+# Risco tecnico da arquitetura proposta (rubrica em framework-pilares.md).
+# Na duvida entre dois niveis, escolha o MAIOR - o inverso da regra das notas.
+RISCO_TECNICO = ("ALTO", "MEDIO", "BAIXO")
+
 # Horizonte de aproveitamento da ideia.
 HORIZONTES = (
     "HACKATHON",          # serve para a competicao, e so
@@ -71,6 +75,7 @@ _CAMPOS = {
     "funcao_negocio": FUNCOES_NEGOCIO,
     "potencial_produto_real": POTENCIAL_PRODUTO,
     "horizonte": HORIZONTES,
+    "risco_tecnico": RISCO_TECNICO,
 }
 
 
@@ -120,6 +125,21 @@ def _markdown() -> str:
         "- **ALTO** — cliente pagante identificavel e dor recorrente; sobrevive sem o edital.",
         "- **MEDIO** — dor real, mas monetizacao ou canal ainda indefinidos.",
         "- **BAIXO** — so faz sentido como demo de competicao.",
+        "",
+        "## Risco tecnico",
+        "",
+        "Julgado sobre a arquitetura DESCRITA, pela rubrica de `framework-pilares.md`.",
+        "Na duvida entre dois niveis, escolha o MAIOR (o inverso da regra das notas).",
+        "",
+        "- **ALTO** - multiagentes com scraping, escrita em sistema externo (ex.: orgao",
+        "  publico), tempo real, ou ativo de dado ainda nao entregue.",
+        "- **MEDIO** - um ou dois agentes, function calling de leitura, integracoes com",
+        "  API estavel e documentada.",
+        "- **BAIXO** - RAG simples ou fluxo fixo, sem integracao externa de escrita.",
+        "",
+        "A recompensa potencial NAO e insumo: e derivada das notas dos Pilares 1 e 4",
+        "por `scorecard.recompensa_potencial()`. O cruzamento risco x recompensa sai da",
+        "matriz `scorecard.MATRIZ_RISCO`.",
         "",
         "## Horizonte",
         "",

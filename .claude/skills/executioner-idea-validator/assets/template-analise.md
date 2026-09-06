@@ -17,9 +17,38 @@
 O ÚNICO gargalo que, resolvido, levaria a nota a 4.5+. Ação concreta, não conselho genérico.
 Ex.: "Falta dado proprietário. Firme parceria com a empresa X para acessar o log de chamados."
 
+**📊 MATRIZ RISCO vs RECOMPENSA:**
+- Recompensa potencial: [ALTA | MEDIA | BAIXA] — derivada das notas de Dor e Escala (o script imprime).
+- Risco técnico: [ALTO | MEDIO | BAIXO] — julgado pela rubrica; justifique em uma frase.
+- Veredito do risco: [frase exata da matriz, impressa pelo script]. Ex.: "Risco Alto para Recompensa Alta = Vale a pena." / "Risco Alto para Recompensa Baixa = Furada."
+
+**⚡ PAI — PLANO DE AÇÃO IMEDIATO (48h):**
+A ÚNICA ação que a equipe deve tomar nas próximas 48 horas para avançar. Uma tarefa, um responsável implícito, verificável.
+Ex.: "Entrevistar 3 gestores de logística para validar a dor." / "Prototipar o mock da API da SEFAZ."
+
+**☠️ DEATH KNELL (SINAL DE MORTE):**
+Condição objetiva que, não cumprida até [data, máx. 7 dias], enterra a ideia.
+Ex.: "Se não conseguirmos a LOI da transportadora até 2026-09-11, descartamos."
+
 **🎯 HORIZONTE:** [HACKATHON | PRODUTO | HACKATHON_E_PRODUTO | NENHUM] · Potencial de produto real: [ALTO | MEDIO | BAIXO].
 Uma frase: a ideia sobrevive fora do edital? Reprovada com horizonte PRODUTO é achado, não contradição.
 
 **📁 REGISTRADO EM:** `output/<pasta>/<slug>.md` — informe o caminho que o script devolveu.
 Omita esta linha apenas quando o veredicto for INSUFICIENTE (nesse caso não há registro).
 ---
+
+## Resumo executivo (obrigatório quando houver MAIS DE UMA ideia na mesma análise)
+
+Após as análises individuais, feche com o quadro comparativo:
+
+| Ideia | Média | Categoria | Risco vs Recompensa | Death Knell (Prazo) | Decisão Final |
+|-------|-------|-----------|---------------------|----------------------|---------------|
+| [Nome] | X.XX | 🟢/🟡/🔴 | Risco X x Recompensa Y | [Condição] ([data]) | Avançar / Observar / Arquivar |
+
+Categoria e Decisão derivam do status (🟢 APROVADA→Avançar, 🟡 EM OBSERVAÇÃO→Observar,
+🔴 REPROVADA→Arquivar). O mesmo quadro, com todas as ideias do banco, vive em `output/INDEX.md`.
+
+E encerre com a **RECOMENDAÇÃO ESTRATÉGICA FINAL**: dentre as aprovadas, qual é a
+prioridade #1 e por quê — justifique pelos pesos do edital (Dor e Agente valem 0.30 cada;
+desempate por Defensibilidade 0.25, depois Escala 0.15, depois menor risco técnico).
+Se nenhuma foi aprovada, diga qual matar por último e o que teria de mudar.
