@@ -62,12 +62,31 @@ problema, a nota é no máximo 2.**
 | 4 | Problema claramente nacional (logística de entregas, inadimplência bancária) e a solução usa dados abertos nacionais para provar que funciona em qualquer UF. |
 | 5 | Agnóstica de região, com modelo de negócio (BMC) prevendo receita recorrente (SaaS) e CAC baixo. |
 
+## Red flags eliminatórios
+
+Dois mecanismos independentes da média ponderada, capazes de rebaixar o veredicto
+mesmo com nota alta:
+
+1. **Teste decisivo do Pilar 2** (ver acima): se o agente for removível por um CRUD com
+   regra fixa, a nota do pilar trava em no máximo 2 — o gargalo já entra pela própria
+   nota, não precisa de cap externo.
+2. **Teste da Demo.** Pergunte sempre, antes do cálculo: *a ideia é demonstrável em até
+   3 minutos, offline, sem depender de API externa frágil?* Considere não-demonstrável
+   quando o fluxo depende de API paga de terceiro sem chave de teste disponível no dia,
+   depende de dado real que só existe em produção do cliente, exige mais de 2-3 passos
+   manuais de setup ao vivo, ou depende de conectividade instável no local do evento.
+   **Nota ≥ 4.00 + não demonstrável em 3 minutos offline → veredicto `NAO_DEMONSTRAVEL`,
+   nunca `APROVADA`** — a média fica registrada como dado, mas a ideia não vai para o
+   backlog até a demo ser resolvida. Não afeta faixas abaixo de 4.00 (já são
+   `EM_OBSERVACAO` ou `REPROVADA` por conta própria).
+
 ## Faixas de veredicto
 
 | Média ponderada | Veredicto |
 |---|---|
-| ≥ 4.0 | **APROVADA** — vai para o backlog. |
-| 3.5 – 3.9 | **REPROVADA**, mas com cirurgia obrigatória: está a um gargalo da aprovação. |
+| ≥ 4.0 e demonstrável em 3 min | **APROVADA** — vai para o backlog. |
+| ≥ 4.0 e **não** demonstrável em 3 min | **NAO_DEMONSTRAVEL** — resolva a demo antes do backlog (ver Red flags eliminatórios). |
+| 3.5 – 3.9 | **EM_OBSERVACAO**, com cirurgia obrigatória: está a um gargalo da aprovação. |
 | < 3.5 | **REPROVADA / DESCARTE** — nomeie a falha crítica que derrubou a nota. |
 
 ## Matriz risco vs recompensa (qualitativa)

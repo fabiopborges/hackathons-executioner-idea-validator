@@ -87,3 +87,13 @@ matriz `scorecard.MATRIZ_RISCO`.
 O horizonte e ortogonal ao status: uma ideia REPROVADA no framework pode ter
 horizonte PRODUTO e continuar valiosa. E exatamente por isso que o banco guarda
 as reprovadas em vez de descarta-las.
+
+## Demonstravel em 3 minutos
+
+Pergunta interativa ao usuario, feita antes do calculo do scorecard: a ideia
+cabe numa demo de ate 3 minutos, offline, sem depender de API externa fragil?
+
+- **SIM** - nao afeta o veredicto.
+- **NAO** - com media >=4.00, rebaixa o veredicto de APROVADA para
+  NAO_DEMONSTRAVEL (`scorecard.classificar()`); abaixo de 4.00 nao muda nada,
+  a faixa ja e EM_OBSERVACAO ou REPROVADA por conta propria.

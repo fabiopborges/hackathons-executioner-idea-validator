@@ -62,6 +62,11 @@ POTENCIAL_PRODUTO = ("ALTO", "MEDIO", "BAIXO")
 # Na duvida entre dois niveis, escolha o MAIOR - o inverso da regra das notas.
 RISCO_TECNICO = ("ALTO", "MEDIO", "BAIXO")
 
+# A ideia e demonstravel em ate 3 minutos, offline, sem API externa fragil?
+# Pergunta interativa ao usuario (rubrica em framework-pilares.md). NAO com
+# media >=4.00 rebaixa o veredicto de APROVADA para NAO_DEMONSTRAVEL.
+DEMOAVEL = ("SIM", "NAO")
+
 # Horizonte de aproveitamento da ideia.
 HORIZONTES = (
     "HACKATHON",          # serve para a competicao, e so
@@ -76,6 +81,7 @@ _CAMPOS = {
     "potencial_produto_real": POTENCIAL_PRODUTO,
     "horizonte": HORIZONTES,
     "risco_tecnico": RISCO_TECNICO,
+    "demoavel": DEMOAVEL,
 }
 
 
@@ -151,6 +157,16 @@ def _markdown() -> str:
         "O horizonte e ortogonal ao status: uma ideia REPROVADA no framework pode ter",
         "horizonte PRODUTO e continuar valiosa. E exatamente por isso que o banco guarda",
         "as reprovadas em vez de descarta-las.",
+        "",
+        "## Demonstravel em 3 minutos",
+        "",
+        "Pergunta interativa ao usuario, feita antes do calculo do scorecard: a ideia",
+        "cabe numa demo de ate 3 minutos, offline, sem depender de API externa fragil?",
+        "",
+        "- **SIM** - nao afeta o veredicto.",
+        "- **NAO** - com media >=4.00, rebaixa o veredicto de APROVADA para",
+        "  NAO_DEMONSTRAVEL (`scorecard.classificar()`); abaixo de 4.00 nao muda nada,",
+        "  a faixa ja e EM_OBSERVACAO ou REPROVADA por conta propria.",
     ]
     return "\n".join(linhas) + "\n"
 

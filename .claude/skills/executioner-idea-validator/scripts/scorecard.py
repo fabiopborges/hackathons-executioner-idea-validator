@@ -5,8 +5,8 @@ Tambem e a fonte unica de verdade dos pesos, do arredondamento e das faixas de
 veredicto -- `registrar_ideia.py` importa deste modulo.
 
 Uso:
-    python3 scorecard.py --dor 4 --agente 5 --defesa 3 --escala 4
-    python3 scorecard.py --dor 4 --agente 5 --pilar-insuficiente defesa --escala 4
+    python3 scorecard.py --dor 4 --agente 5 --defesa 3 --escala 4 --demoavel SIM
+    python3 scorecard.py --dor 4 --agente 5 --pilar-insuficiente defesa --escala 4 --demoavel SIM
 """
 
 import argparse
@@ -33,12 +33,23 @@ ROTULOS = {
 STATUS_PASTA = {
     "APROVADA": "ideias-aprovadas",
     "EM_OBSERVACAO": "ideias-em-observacao",
+    "NAO_DEMONSTRAVEL": "ideias-nao-demonstraveis",
     "REPROVADA": "ideias-reprovadas",
 }
 
 # status -> emoji de categoria e decisao final do quadro comparativo
-CATEGORIA_EMOJI = {"APROVADA": "🟢", "EM_OBSERVACAO": "🟡", "REPROVADA": "🔴"}
-DECISAO_FINAL = {"APROVADA": "Avancar", "EM_OBSERVACAO": "Observar", "REPROVADA": "Arquivar"}
+CATEGORIA_EMOJI = {
+    "APROVADA": "🟢",
+    "EM_OBSERVACAO": "🟡",
+    "NAO_DEMONSTRAVEL": "🟠",
+    "REPROVADA": "🔴",
+}
+DECISAO_FINAL = {
+    "APROVADA": "Avancar",
+    "EM_OBSERVACAO": "Observar",
+    "NAO_DEMONSTRAVEL": "Resolver Demo",
+    "REPROVADA": "Arquivar",
+}
 
 # Matriz risco vs recompensa (qualitativa, deterministica).
 # Recompensa e DERIVADA das notas (Pilares 1 e 4); risco tecnico e insumo
@@ -80,21 +91,29 @@ def media_ponderada(notas: dict) -> Decimal:
     return bruta.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
-def classificar(media: Decimal) -> str:
-    """Faixas fechadas sobre a media JA arredondada."""
+def classificar(media: Decimal, demoavel: bool = True) -> str:
+    """Faixas fechadas sobre a media JA arredondada.
+
+    demoavel=False rebaixa uma media >=4.00 de APROVADA para NAO_DEMONSTRAVEL --
+    a ideia da os pontos, mas nao pode ir pro backlog sem antes resolver a demo.
+    Nao afeta as faixas abaixo de 4.00.
+    """
     if media >= Decimal("4.00"):
-        return "APROVADA"
+        return "APROVADA" if demoavel else "NAO_DEMONSTRAVEL"
     if media >= Decimal("3.50"):
         return "EM_OBSERVACAO"
     return "REPROVADA"
 
 
-def veredicto(media: Decimal) -> str:
-    status = classificar(media)
+def veredicto(media: Decimal, demoavel: bool = True) -> str:
+    status = classificar(media, demoavel)
     if status == "APROVADA":
         return "[APROVADA] - vai para o backlog."
+    if status == "NAO_DEMONSTRAVEL":
+        return (f"[NAO DEMONSTRAVEL] - nota aprova ({media}/5.00), mas a ideia nao e "
+                "demonstravel em 3 minutos offline: resolva a demo antes do backlog.")
     if status == "EM_OBSERVACAO":
-        return "[REPROVADA] - faixa de cirurgia (3.50-3.99): um gargalo a resolver."
+        return "[EM OBSERVACAO] - faixa de cirurgia (3.50-3.99): um gargalo a resolver."
     return "[REPROVADA / DESCARTE] - nomeie a falha critica que derrubou a nota."
 
 
@@ -115,6 +134,14 @@ def main() -> int:
         default=[],
         choices=list(PILARES),
         help="pilar sem dados suficientes (repetivel)",
+    )
+    p.add_argument(
+        "--demoavel",
+        choices=["SIM", "NAO"],
+        required=True,
+        help="a ideia e demonstravel em ate 3 minutos, offline, sem depender de API "
+             "externa fragil? (rubrica: framework-pilares.md) NAO rebaixa uma media "
+             ">=4.00 de APROVADA para NAO_DEMONSTRAVEL",
     )
     a = p.parse_args()
 
@@ -142,12 +169,14 @@ def main() -> int:
         print("Nao renormalize pesos, nao suponha notas e NAO registre no banco.")
         return 0
 
+    demoavel = a.demoavel == "SIM"
     media = media_ponderada(notas)
     parcelas = " + ".join(f"{PESOS[k]}x{notas[k]}" for k in PILARES)
     print(f"CONTA: {parcelas} = {media}")
     print(f"MEDIA PONDERADA: {media} / 5.00")
-    print(f"VEREDICTO: {veredicto(media)}")
-    print(f"DESTINO NO BANCO: output/{STATUS_PASTA[classificar(media)]}/")
+    print(f"DEMONSTRAVEL EM 3 MIN: {a.demoavel}")
+    print(f"VEREDICTO: {veredicto(media, demoavel)}")
+    print(f"DESTINO NO BANCO: output/{STATUS_PASTA[classificar(media, demoavel)]}/")
     recompensa = recompensa_potencial(notas)
     print(f"RECOMPENSA POTENCIAL: {recompensa} (derivada de Dor={notas['dor']} e Escala={notas['escala']})")
     if a.risco_tecnico:

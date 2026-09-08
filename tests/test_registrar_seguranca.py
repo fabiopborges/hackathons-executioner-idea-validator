@@ -29,11 +29,13 @@ RED_TEAM = RAIZ / "tests" / "red-team"
 
 DATAHORA = "2026-09-05T00:00:00-03:00"
 
-# md5 congelados ANTES do hardening (Fase 1). Se mudarem, a sanitizacao deixou
-# de ser idempotente ou o render mudou - e isso e uma quebra de determinismo.
-MD5_IDEIA = "e5bb13a1b73c19e429df1609649dbab3"
-MD5_INDEX = "c4179190b5fdfebd996c35f812ddc55d"
-MD5_BANCO = "29b37b6357ced869889d82956e364d5a"
+# md5 congelados apos o MVP2 (campo `demoavel` adicionado ao schema/render).
+# Se mudarem por outro motivo, a sanitizacao deixou de ser idempotente ou o
+# render mudou sem uma mudanca de schema deliberada - e isso e uma quebra de
+# determinismo.
+MD5_IDEIA = "9bc735520ac72ce59738bb50b7f29ce0"
+MD5_INDEX = "1f607de513286279d162cc4c6b6f2d33"
+MD5_BANCO = "295738bbf13e2203e18bb4356cb776ce"
 
 sys.path.insert(0, str(SCRIPTS))
 sys.path.insert(0, str(SCRIPTS / "hooks"))
@@ -285,6 +287,17 @@ class TestLimitesEValidacao(Base):
         self.assertEqual(self.registrar("c", exemplo(notas__dor=None)).returncode, 2)
         self.assertEqual(self.registrar("d", exemplo(notas__dor=True)).returncode, 2)
 
+    def test_demoavel_obrigatorio_e_validado(self):
+        d = exemplo()
+        del d["demoavel"]
+        self.assertEqual(self.registrar("a", d).returncode, 2)
+        self.assertEqual(self.registrar("b", exemplo(demoavel="")).returncode, 2)
+        self.assertEqual(self.registrar("c", exemplo(demoavel="sim")).returncode, 2)
+        self.assertEqual(self.registrar("d", exemplo(demoavel="TALVEZ")).returncode, 2)
+        r = self.registrar("e", exemplo(demoavel="NAO"))
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertTrue(self.arquivo("ideias-nao-demonstraveis", "reentrega-zero").exists())
+
 
 # --------------------------------------------------------------------------- #
 class TestDetector(Base):
@@ -392,6 +405,28 @@ class TestScorecard(unittest.TestCase):
         self.assertEqual(scorecard.recompensa_potencial({"dor": 2, "escala": 5}), "BAIXA")
         self.assertEqual(scorecard.recompensa_potencial({"dor": 3, "escala": 5}), "MEDIA")
         self.assertEqual(scorecard.veredito_risco("ALTO", "BAIXA"), "Furada.")
+
+    def test_demoavel_rebaixa_aprovada(self):
+        self.assertEqual(scorecard.classificar(Decimal("4.50"), demoavel=False),
+                         "NAO_DEMONSTRAVEL")
+        self.assertEqual(scorecard.classificar(Decimal("4.00"), demoavel=False),
+                         "NAO_DEMONSTRAVEL")
+
+    def test_demoavel_nao_afeta_faixas_abaixo_de_4(self):
+        self.assertEqual(scorecard.classificar(Decimal("3.80"), demoavel=False), "EM_OBSERVACAO")
+        self.assertEqual(scorecard.classificar(Decimal("3.00"), demoavel=False), "REPROVADA")
+
+    def test_veredicto_default_mantem_compatibilidade(self):
+        self.assertEqual(scorecard.classificar(Decimal("4.50")), "APROVADA")
+        self.assertEqual(scorecard.veredicto(Decimal("4.50")), "[APROVADA] - vai para o backlog.")
+
+    def test_veredicto_texto_diferencia_causa(self):
+        texto_demo = scorecard.veredicto(Decimal("4.20"), demoavel=False)
+        self.assertIn("NAO DEMONSTRAVEL", texto_demo)
+        self.assertIn("3 minutos", texto_demo)
+        texto_cirurgia = scorecard.veredicto(Decimal("3.70"))
+        self.assertIn("EM OBSERVACAO", texto_cirurgia)
+        self.assertIn("faixa de cirurgia", texto_cirurgia)
 
 
 # --------------------------------------------------------------------------- #
