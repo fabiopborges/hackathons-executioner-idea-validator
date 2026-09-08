@@ -4,6 +4,7 @@
       "Bash(python3 .claude/skills/executioner-idea-validator/scripts/scorecard.py:*)",
       "Bash(python3 .claude/skills/executioner-idea-validator/scripts/registrar_ideia.py --json:*)",
       "Bash(python3 .claude/skills/executioner-idea-validator/scripts/taxonomia.py:*)",
+      "Bash(python3 .claude/skills/executioner-idea-validator/scripts/avalia.py --json:*)",
       "Read(output/**)"
     ],
     "deny": [

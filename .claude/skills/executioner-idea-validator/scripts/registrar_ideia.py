@@ -771,7 +771,7 @@ def validar_datahora(valor: str) -> str:
 
 
 # --------------------------------------------------------------------------- #
-def main() -> int:
+def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--json", type=Path, help="arquivo JSON da ideia (padrao: stdin)")
@@ -785,7 +785,7 @@ def main() -> int:
     p.add_argument("--aceitar-padroes-suspeitos", action="store_true",
                    help="registra mesmo com padroes de injecao detectados; so apos revisao "
                         "humana do texto. Fica anotado no historico.")
-    a = p.parse_args()
+    a = p.parse_args(argv)
 
     try:
         raiz = validar_output_dir(a.output_dir)
