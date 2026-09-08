@@ -70,6 +70,7 @@ PRAZO_MAX_DIAS = 7
 STATUS_ROTULO = {
     "APROVADA": "APROVADA",
     "EM_OBSERVACAO": "EM OBSERVACAO",
+    "NAO_DEMONSTRAVEL": "NAO DEMONSTRAVEL",
     "REPROVADA": "REPROVADA",
 }
 
@@ -311,7 +312,8 @@ def validar_payload(d: dict, data_ref: date) -> dict:
             raise ValueError(f"justificativas.{p}: exigida uma frase citando a evidencia do texto")
         n["justificativas"][p] = frase
 
-    for campo in ("dominio_negocio", "potencial_produto_real", "horizonte", "risco_tecnico"):
+    for campo in ("dominio_negocio", "potencial_produto_real", "horizonte", "risco_tecnico",
+                  "demoavel"):
         n[campo] = validar(campo, sanitizar_escalar(str(d.get(campo, ""))))
 
     dk = d.get("death_knell")
@@ -401,6 +403,7 @@ def render(d: dict, media: Decimal, status: str, slug: str,
         f"horizonte: {aspas(d['horizonte'])}",
         f"potencial_produto_real: {aspas(d['potencial_produto_real'])}",
         f"risco_tecnico: {aspas(risco)}",
+        f"demoavel: {aspas(d['demoavel'])}",
         f"recompensa_potencial: {aspas(recompensa)}",
         f"decisao: {aspas(decisao)}",
         f"death_knell_prazo: {aspas(dk['prazo'])}",
@@ -428,6 +431,7 @@ def render(d: dict, media: Decimal, status: str, slug: str,
         f"| **Horizonte** | {d['horizonte']} |",
         f"| **Potencial de produto real** | {d['potencial_produto_real']} |",
         f"| **Risco vs recompensa** | Risco {risco} x Recompensa {recompensa} — {verd_risco} |",
+        f"| **Demonstrável em 3 min** | {d['demoavel']} |",
         f"| **Decisão** | {CATEGORIA_EMOJI[status]} {decisao} |",
         f"| **Death knell** | {celula(dk['condicao'])} (prazo: {dk['prazo']}) |",
         f"| **Tags** | {', '.join(tags) if tags else '—'} |",
@@ -466,6 +470,11 @@ def render(d: dict, media: Decimal, status: str, slug: str,
         f"**{STATUS_ROTULO[status]}** — media ponderada {media}/5.00 "
         f"({' + '.join(f'{PESOS[p]}x{notas[p]}' for p in PILARES)}).",
         "",
+    ] + ([
+        f"Nota aprova ({media}/5.00), mas a ideia nao e demonstravel em 3 minutos "
+        "offline: resolva a demo antes do backlog.",
+        "",
+    ] if status == "NAO_DEMONSTRAVEL" else []) + [
         "## Matriz risco vs recompensa",
         "",
         f"**Recompensa potencial:** {recompensa} — derivada das notas de Dor "
@@ -684,6 +693,7 @@ def construir_indice(raiz: Path) -> tuple:
                 "horizonte": r.get("horizonte"),
                 "potencial_produto_real": r.get("potencial_produto_real"),
                 "risco_tecnico": r.get("risco_tecnico"),
+                "demoavel": r.get("demoavel"),
                 "recompensa_potencial": r.get("recompensa_potencial"),
                 "decisao": r.get("decisao"),
                 "death_knell": (
@@ -816,7 +826,7 @@ def main() -> int:
             return 2
 
     media = media_ponderada(d["notas"])
-    status = classificar(media)
+    status = classificar(media, demoavel=(d["demoavel"] == "SIM"))
     slug = slugificar(d["titulo"])
     destino = raiz / STATUS_PASTA[status] / f"{slug}.md"
 

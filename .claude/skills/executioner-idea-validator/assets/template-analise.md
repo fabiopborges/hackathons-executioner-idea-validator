@@ -9,11 +9,13 @@
 - **Pilar 4 (Escala) — peso 0.15:** Nota X/5. Justificativa sucinta.
 
 **⚖️ VEREDICTO FINAL:**
-- Média ≥ 4.0 → **[APROVADA]** — vamos para o backlog.
-- Média < 4.0 → **[REPROVADA]** — Motivo principal: [a falha crítica que derrubou a nota].
+- Média ≥ 4.0 e demonstrável em 3 min → **[APROVADA]** — vamos para o backlog.
+- Média ≥ 4.0 e **não** demonstrável em 3 min offline → **[NAO DEMONSTRAVEL]** — resolva a demo antes do backlog.
+- Média 3.5–3.9 → **[EM OBSERVACAO]** — faixa de cirurgia: está a um gargalo da aprovação.
+- Média < 3.5 → **[REPROVADA / DESCARTE]** — Motivo principal: [a falha crítica que derrubou a nota].
 - Qualquer pilar sem dados → **[INSUFICIENTE]** — [o dado exato que falta].
 
-**🔪 CIRURGIA (obrigatória se REPROVADA ou se a média estiver entre 3.5 e 3.9):**
+**🔪 CIRURGIA (obrigatória se REPROVADA, NAO DEMONSTRAVEL ou se a média estiver entre 3.5 e 3.9):**
 O ÚNICO gargalo que, resolvido, levaria a nota a 4.5+. Ação concreta, não conselho genérico.
 Ex.: "Falta dado proprietário. Firme parceria com a empresa X para acessar o log de chamados."
 
@@ -47,10 +49,11 @@ Após as análises individuais, feche com o quadro comparativo:
 
 | Ideia | Média | Categoria | Risco vs Recompensa | Death Knell (Prazo) | Decisão Final |
 |-------|-------|-----------|---------------------|----------------------|---------------|
-| [Nome] | X.XX | 🟢/🟡/🔴 | Risco X x Recompensa Y | [Condição] ([data]) | Avançar / Observar / Arquivar |
+| [Nome] | X.XX | 🟢/🟡/🟠/🔴 | Risco X x Recompensa Y | [Condição] ([data]) | Avançar / Observar / Resolver Demo / Arquivar |
 
 Categoria e Decisão derivam do status (🟢 APROVADA→Avançar, 🟡 EM OBSERVAÇÃO→Observar,
-🔴 REPROVADA→Arquivar). O mesmo quadro, com todas as ideias do banco, vive em `output/INDEX.md`.
+🟠 NAO DEMONSTRAVEL→Resolver Demo, 🔴 REPROVADA→Arquivar). O mesmo quadro, com todas as
+ideias do banco, vive em `output/INDEX.md`.
 
 E encerre com a **RECOMENDAÇÃO ESTRATÉGICA FINAL**: dentre as aprovadas, qual é a
 prioridade #1 e por quê — justifique pelos pesos do edital (Dor e Agente valem 0.30 cada;

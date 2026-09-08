@@ -49,7 +49,7 @@ Não é preciso saber programar. Você conversa em português; a skill faz o res
    por nota.
 3. **Calcula a média ponderada por script**, não "de cabeça". Mesma entrada, mesma nota,
    sempre.
-4. **Dá um veredicto sem rodeios**: APROVADA, EM OBSERVAÇÃO ou REPROVADA.
+4. **Dá um veredicto sem rodeios**: APROVADA, EM OBSERVAÇÃO, NAO DEMONSTRAVEL ou REPROVADA.
 5. **Aponta uma cirurgia**: o gargalo único que, resolvido, mais sobe a nota.
 6. **Cruza risco e recompensa**: recompensa derivada das notas (Dor + Escala), risco
    técnico julgado sobre a arquitetura, e um veredito direto da matriz — de
@@ -290,13 +290,16 @@ A skill lê `output/INDEX.md` / `output/banco.json` e responde a partir da seç�
 
 | Média | Veredicto | Pasta |
 |---|---|---|
-| ≥ 4.00 | **APROVADA** | `output/ideias-aprovadas/` |
+| ≥ 4.00, demonstrável em 3 min | **APROVADA** | `output/ideias-aprovadas/` |
+| ≥ 4.00, **não** demonstrável em 3 min offline | **NAO DEMONSTRAVEL** | `output/ideias-nao-demonstraveis/` |
 | 3.50 – 3.99 | **EM OBSERVAÇÃO** — a um gargalo da aprovação | `output/ideias-em-observacao/` |
 | < 3.50 | **REPROVADA** | `output/ideias-reprovadas/` |
 
-Regras de calibração: na dúvida entre duas notas, vale a **menor**. E há um teste
-decisivo no Pilar 2 — se você tirar o agente e um CRUD com regra fixa resolver o mesmo
-problema, a nota é **no máximo 2**.
+Regras de calibração: na dúvida entre duas notas, vale a **menor**. Há um teste decisivo
+no Pilar 2 — se você tirar o agente e um CRUD com regra fixa resolver o mesmo problema, a
+nota é **no máximo 2**. E há um segundo red flag eliminatório, independente da nota: se a
+ideia não cabe numa demo de 3 minutos offline, o veredicto trava em NAO DEMONSTRAVEL
+mesmo com média ≥ 4.00.
 
 A rubrica completa, nota por nota, está em
 [`references/framework-pilares.md`](.claude/skills/executioner-idea-validator/references/framework-pilares.md).
@@ -311,6 +314,7 @@ output/
 ├── banco.json                  # o mesmo, legível por máquina
 ├── ideias-aprovadas/
 ├── ideias-em-observacao/
+├── ideias-nao-demonstraveis/
 └── ideias-reprovadas/
 ```
 
@@ -321,7 +325,7 @@ reavaliada, ela é **movida** entre pastas — nunca duplicada.
 
 **Cabeçalho:** título · data/hora do registro · última avaliação · domínio de negócio ·
 função de negócio (TOGAF) · status com a média · horizonte · potencial de produto real ·
-tags.
+demonstrável em 3 min (SIM/NAO) · tags.
 
 **Seções:** Escopo da proposta · Problema e quem sofre · Arquitetura de agentes ·
 Fontes de dados e defensibilidade · Scorecard · Veredicto · Matriz risco vs recompensa ·
@@ -329,7 +333,7 @@ Cirurgia (gargalo único) · Plano de ação imediato (48h) · Death knell · Po
 do hackathon · Riscos e premissas · Próximos passos · Histórico de avaliações.
 
 O `INDEX.md` traz ainda um **quadro comparativo** de todas as ideias
-(Média · Categoria 🟢/🟡/🔴 · Risco vs Recompensa · Death Knell · Decisão Final).
+(Média · Categoria 🟢/🟡/🟠/🔴 · Risco vs Recompensa · Death Knell · Decisão Final).
 
 ### Horizonte: o campo que separa hackathon de negócio
 
@@ -363,20 +367,26 @@ SKILL=.claude/skills/executioner-idea-validator
 ### Calcular uma nota
 
 ```bash
-python3 $SKILL/scripts/scorecard.py --dor 4 --agente 5 --defesa 3 --escala 4
+python3 $SKILL/scripts/scorecard.py --dor 4 --agente 5 --defesa 3 --escala 4 --demoavel SIM
 ```
 
 ```
 CONTA: 0.30x4 + 0.30x5 + 0.25x3 + 0.15x4 = 4.05
 MEDIA PONDERADA: 4.05 / 5.00
+DEMONSTRAVEL EM 3 MIN: SIM
 VEREDICTO: [APROVADA] - vai para o backlog.
 DESTINO NO BANCO: output/ideias-aprovadas/
 ```
 
+`--demoavel` é sempre obrigatório e alimenta um red flag independente da nota: com
+`--demoavel NAO` e média ≥ 4.00, o veredicto vira `[NAO DEMONSTRAVEL]` e o destino muda
+para `output/ideias-nao-demonstraveis/` — a média fica registrada, mas a ideia não vai
+para o backlog até a demo ser resolvida.
+
 Pilar sem dados:
 
 ```bash
-python3 $SKILL/scripts/scorecard.py --dor 4 --agente 5 --pilar-insuficiente defesa --escala 4
+python3 $SKILL/scripts/scorecard.py --dor 4 --agente 5 --pilar-insuficiente defesa --escala 4 --demoavel SIM
 ```
 
 ### Registrar uma ideia

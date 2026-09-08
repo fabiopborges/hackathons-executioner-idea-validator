@@ -10,8 +10,9 @@ para que essa distinção fique registrada em vez de morrer na conversa.
 output/
 ├── INDEX.md                    # gerado: índice por status + quadro comparativo + radar
 ├── banco.json                  # gerado: mesmo conteúdo, legível por máquina
-├── ideias-aprovadas/           # média ponderada ≥ 4.00
+├── ideias-aprovadas/           # média ponderada ≥ 4.00 e demonstrável em 3 min
 ├── ideias-em-observacao/       # 3.50 – 3.99 (a um gargalo da aprovação)
+├── ideias-nao-demonstraveis/   # ≥ 4.00, mas não demonstrável em 3 min offline
 └── ideias-reprovadas/          # < 3.50
 ```
 
@@ -27,7 +28,7 @@ mão — isso quebra o índice e o histórico.
 | Elemento | Regra determinística |
 |---|---|
 | Recompensa e veredito da matriz | derivados por `scorecard.py` das notas e do risco — nunca julgados duas vezes |
-| Categoria/Decisão do quadro | derivadas do status (🟢 Avançar / 🟡 Observar / 🔴 Arquivar) |
+| Categoria/Decisão do quadro | derivadas do status (🟢 Avançar / 🟡 Observar / 🟠 Resolver Demo / 🔴 Arquivar) |
 | Nome do arquivo | slug do título: NFKD → ASCII → minúsculas → `[^a-z0-9]+` vira `-` → 60 chars |
 | Pasta | faixa da média **já arredondada**, conforme `framework-pilares.md` |
 | Média | `Decimal`, HALF_UP, 2 casas — sem float, sem aritmética do modelo |
@@ -47,7 +48,9 @@ Mesmo JSON + mesmo `--datahora` ⇒ arquivo byte a byte idêntico.
 Título · Data/hora do registro · Última avaliação · Domínio de negócio ·
 Função de negócio (TOGAF) · Status (com a média) · Horizonte ·
 Potencial de produto real · Risco vs recompensa (com o veredito da matriz) ·
-Decisão (🟢 Avançar / 🟡 Observar / 🔴 Arquivar) · Death knell (condição + prazo) · Tags.
+Demonstrável em 3 min (SIM/NAO) ·
+Decisão (🟢 Avançar / 🟡 Observar / 🟠 Resolver Demo / 🔴 Arquivar) ·
+Death knell (condição + prazo) · Tags.
 
 ## Seções do corpo
 
@@ -106,6 +109,7 @@ todos os campos preenchidos.
 | `justificativas` | uma frase por pilar | sim | 500 chars cada |
 | `horizonte`, `potencial_produto_real` | enum (taxonomia) | sim | — |
 | `risco_tecnico` | enum `ALTO`/`MEDIO`/`BAIXO` (taxonomia) | sim | — |
+| `demoavel` | enum `SIM`/`NAO` (taxonomia) — demonstrável em 3 min offline? | sim | — |
 | `pai` | string (bloco) — a única ação das próximas 48h | sim | 4000 chars |
 | `death_knell` | `{condicao, prazo}`; prazo `YYYY-MM-DD` real, de 0 a 7 dias após a avaliação | sim | condição 500 chars |
 | `justificativa_horizonte` | string (bloco) | recomendado | 4000 chars |

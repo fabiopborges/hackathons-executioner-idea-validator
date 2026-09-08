@@ -47,6 +47,7 @@
   "observacao_revisao": "Registro inicial apos primeira avaliacao do Executioner.",
   "risco_tecnico": "ALTO",
   "justificativa_risco_tecnico": "Multiagente com integracao de escrita em canal externo (WhatsApp Business API) e dependencia de dado de terceiro (WMS) ainda sob contrato — dois marcadores de risco ALTO da rubrica.",
+  "demoavel": "SIM",
   "pai": "Nas proximas 48h: agendar com a parceira da LOI a extracao de amostra do WMS (500 tentativas de entrega) e validar que os campos necessarios ao Preditor existem no dado real.",
   "death_knell": {
     "condicao": "Contrato de acesso ao WMS da parceira assinado e amostra de dados recebida",
