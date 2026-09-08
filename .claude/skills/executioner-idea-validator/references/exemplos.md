@@ -57,11 +57,38 @@ Agente para 4 — e só então a ideia passa de 4.0.
 
 ---
 
-## Caso C — INSUFICIENTE
+## Caso C — INSUFICIENTE (porteiro interativo)
 
 **Entrada:** "Agente multiagente para RH."
 
-### Resposta
+### Resposta — diálogo guiado (comportamento padrão)
+
+> "Entendi o tema (RH), mas falta o **Problema**: descreva a dor específica, com
+> números se possível."
+
+**Usuário:** "Empresas gastam muito tempo triando currículo."
+
+> "Ainda genérico — 'gastam muito tempo' não é um número. Quanto tempo, por semana,
+> hoje? Se não tiver o dado exato, escreva 'NÃO TENHO'." *(2ª e última tentativa
+> para este elemento)*
+
+**Usuário:** "NÃO TENHO, mas quem sofre é o time de RH de empresas médias, e a fonte
+de dados seriam os currículos recebidos por e-mail."
+
+> "Ok — Problema fica registrado como 'NÃO TENHO' (evidência ausente, vai pesar na
+> nota do Pilar 1). Quem sofre e Fonte de dados: recebidos. Falta só o mecanismo do
+> agente: como, especificamente, um agente de IA resolveria isso — que decisão ele
+> toma sozinho, além de filtrar palavra-chave?"
+
+Só depois de fechar os 4 elementos (mesmo com "NÃO TENHO" em algum deles) o
+Executioner segue para a Pontuação — nunca inventa o que falta, e nunca deixa o
+usuário sem saber exatamente o que ainda precisa responder.
+
+### Resposta — bloqueio de tiro único (cap de 2 tentativas por elemento estourado)
+
+Se, após a pergunta inicial e uma reformulação, o elemento continuar sem resposta
+utilizável (ex.: o usuário ignora a pergunta ou responde outra coisa duas vezes
+seguidas):
 
 > *"Descrição insuficiente. Preciso saber: (1) Qual o problema, (2) Quem sofre,
 > (3) Como um agente de IA resolveria isso, (4) Qual a fonte dos dados."*
