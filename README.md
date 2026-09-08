@@ -224,20 +224,31 @@ para MEI continua sendo mercado depois do hackathon.
 
 Repare: **reprovada, mas registrada** — e ela aparece no "Radar de produto real" do índice.
 
-### Exemplo 3 — Descrição insuficiente
+### Exemplo 3 — Descrição insuficiente (porteiro interativo)
 
 **Você digita:**
 
 > Tenho uma ideia de agente multiagente para RH, o que acha?
 
-**Resposta:**
+**Resposta — o Executioner pergunta um elemento por vez**, em vez de bloquear de uma
+só vez:
+
+```
+Entendi o tema (RH), mas falta o Problema: descreva a dor específica, com números
+se possível.
+```
+
+Você responde, e ele segue para o próximo elemento que faltar (quem sofre, mecanismo
+do agente, fonte de dados) — sempre um de cada vez, sem inventar o que você não disse.
+Se um mesmo elemento ficar sem resposta útil por 2 tentativas seguidas, ele desiste
+daquele item e devolve o bloqueio de tiro único:
 
 ```
 Descrição insuficiente. Preciso saber: (1) Qual o problema, (2) Quem sofre,
 (3) Como um agente de IA resolveria isso, (4) Qual a fonte dos dados.
 ```
 
-Nada é avaliado e nada é registrado.
+Nada é avaliado e nada é registrado até os 4 elementos estarem completos.
 
 ### Exemplo 4 — Comparar várias ideias
 
