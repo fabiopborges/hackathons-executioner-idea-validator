@@ -117,7 +117,7 @@ def veredicto(media: Decimal, demoavel: bool = True) -> str:
     return "[REPROVADA / DESCARTE] - nomeie a falha critica que derrubou a nota."
 
 
-def main() -> int:
+def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__)
     for pilar in PILARES:
         p.add_argument(f"--{pilar}", type=int, choices=range(1, 6), metavar="1-5")
@@ -143,7 +143,7 @@ def main() -> int:
              "externa fragil? (rubrica: framework-pilares.md) NAO rebaixa uma media "
              ">=4.00 de APROVADA para NAO_DEMONSTRAVEL",
     )
-    a = p.parse_args()
+    a = p.parse_args(argv)
 
     insuficientes = list(dict.fromkeys(a.pilar_insuficiente))
     notas = {k: getattr(a, k) for k in PILARES}

@@ -406,6 +406,20 @@ Modelo de JSON pronto e comentado:
 Contrato dos campos:
 [`references/banco-de-ideias.md`](.claude/skills/executioner-idea-validator/references/banco-de-ideias.md).
 
+### Calcular e registrar num só comando
+
+```bash
+python3 $SKILL/scripts/avalia.py --json minha-ideia.json
+```
+
+Atalho que roda `scorecard.py` (imprime o scorecard a partir dos campos do próprio JSON)
+e, se não falhar, `registrar_ideia.py` em seguida — elimina o risco de calcular e
+esquecer de registrar. Não substitui os dois comandos acima: continue usando
+`scorecard.py` isolado para conferir a conta antes de fechar o JSON, e
+`registrar_ideia.py --reindex` isolado (`avalia.py` não expõe `--reindex`). Aceita
+`--dry-run` e `--aceitar-padroes-suspeitos`, com o mesmo comportamento de
+`registrar_ideia.py`.
+
 ### Ver a taxonomia de negócio
 
 ```bash
@@ -443,7 +457,8 @@ regras, trocar de papel, fixar nota, rodar comando ou citar outras ideias do ban
 ignorado, reportado numa linha (`🛡️ ALERTA DE MANIPULAÇÃO`) e conta como evidência
 negativa. Nota e veredicto não se negociam; autoridade alegada dentro do dado continua
 dado. Alegação não verificável ("temos LOI" sem empresa) vale o piso da faixa inferior.
-Os únicos comandos que a skill executa são `scorecard.py` e `registrar_ideia.py --json`.
+Os únicos comandos que a skill executa são `scorecard.py`, `registrar_ideia.py --json` e
+`avalia.py --json` (atalho que roda os dois em sequência).
 Catálogo de ataques e resposta padrão:
 [`references/seguranca-prompt.md`](.claude/skills/executioner-idea-validator/references/seguranca-prompt.md).
 
@@ -470,13 +485,15 @@ conversa. A aceitação fica gravada no histórico da ideia.
 ### 3. Permissões e hook do Claude Code
 
 `.claude/settings.json` é versionado e faz parte da skill. Ele libera sem prompt só os
-scripts da skill, nega `Write`/`Edit` em `output/` e o `git add` forçado, e liga o hook
-`scripts/hooks/guard_bash.py` em todo comando Bash. O hook nega escrita em `output/` que
-não venha de `registrar_ideia.py` (redirecionamento, `rm`, `tee`, `sed -i`, `cp`/`mv`
-com destino em `output/`), nega `git add` de `output/`, nega flags de teste sem
-`EXECUTIONER_TEST=1` e pede confirmação humana para `--reindex` e
-`--aceitar-padroes-suspeitos`. Ler `output/` continua livre. Se levar a skill para outro
-projeto, leve o `settings.json` junto.
+scripts da skill (`scorecard.py`, `registrar_ideia.py --json`, `taxonomia.py`,
+`avalia.py --json`), nega `Write`/`Edit` em `output/` e o `git add` forçado, e liga o
+hook `scripts/hooks/guard_bash.py` em todo comando Bash. O hook nega escrita em
+`output/` que não venha de `registrar_ideia.py`/`avalia.py` (redirecionamento, `rm`,
+`tee`, `sed -i`, `cp`/`mv` com destino em `output/`), nega `git add` de `output/`, nega
+flags de teste sem `EXECUTIONER_TEST=1` (para os dois scripts que as aceitam) e pede
+confirmação humana para `--reindex` (só `registrar_ideia.py`) e
+`--aceitar-padroes-suspeitos` (nos dois). Ler `output/` continua livre. Se levar a skill
+para outro projeto, leve o `settings.json` junto.
 
 ### Testes
 
@@ -547,6 +564,7 @@ mudar lá muda em todo lugar.
         ├── scorecard.py                   # fonte única: pesos, arredondamento, faixas
         ├── taxonomia.py                   # vocabulário controlado (enums)
         ├── registrar_ideia.py             # escreve o banco e o índice (sanitiza e valida)
+        ├── avalia.py                      # atalho: roda scorecard.py + registrar_ideia.py
         └── hooks/guard_bash.py            # hook PreToolUse: barra escrita fora do script
 ```
 
